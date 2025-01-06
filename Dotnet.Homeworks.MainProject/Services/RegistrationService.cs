@@ -18,6 +18,12 @@ public class RegistrationService : IRegistrationService
         await Task.Delay(100);
         
         // publish message to a queue
-        await _communicationService.SendEmailAsync(new SendEmail("", "", "", ""));
+        await _communicationService.SendEmailAsync(
+            new SendEmail(
+                "Aysulu", 
+                "blablabla@dotnet.com", 
+                "You're Great", 
+                "Woo-Hoo"
+                ));
     }
 }

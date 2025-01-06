@@ -8,14 +8,9 @@ using MimeKit;
 
 namespace Dotnet.Homeworks.Mailing.API.Services;
 
-public class MailingService : IMailingService
+public class MailingService(IOptions<EmailConfig> emailConfig, ILogger<MailingService> logger) : IMailingService
 {
-    private readonly EmailConfig _emailConfig;
-
-    public MailingService(IOptions<EmailConfig> emailConfig)
-    {
-        _emailConfig = emailConfig.Value;
-    }
+    private readonly EmailConfig _emailConfig = emailConfig.Value;
 
     public async Task<Result> SendEmailAsync(EmailMessage emailDto)
     {
@@ -28,13 +23,19 @@ public class MailingService : IMailingService
             TextBody = $"Your message: {emailDto.Content}"
         };
         message.Body = bodyBuilder.ToMessageBody();
-        using var client = new SmtpClient();
+        // using var client = new SmtpClient();
         try
         {
-            await client.ConnectAsync(_emailConfig.Host, _emailConfig.Port, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(_emailConfig.Email, _emailConfig.Password);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            // await client.ConnectAsync(_emailConfig.Host, _emailConfig.Port, SecureSocketOptions.StartTls);
+            // await client.AuthenticateAsync(_emailConfig.Email, _emailConfig.Password);
+            // await client.SendAsync(message);
+            // await client.DisconnectAsync(true);
+            logger.LogWarning(
+                "Service temporarily unavailable. Received following config: {host}, {port}, {email}, {password}",
+                _emailConfig.Host, _emailConfig.Port, _emailConfig.Email, _emailConfig.Password
+                );
+            logger.LogInformation("Message would be sent to: {recipient}", message.To);
+            
             return new Result(true);
         }
         catch (Exception ex)
