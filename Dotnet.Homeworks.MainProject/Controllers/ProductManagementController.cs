@@ -1,31 +1,40 @@
+using Dotnet.Homeworks.Features.Products.Commands.DeleteProduct;
+using Dotnet.Homeworks.Features.Products.Commands.InsertProduct;
+using Dotnet.Homeworks.Features.Products.Commands.UpdateProduct;
+using Dotnet.Homeworks.Features.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
+using IMediator = MediatR.IMediator;
 
 namespace Dotnet.Homeworks.MainProject.Controllers;
 
 [ApiController]
-public class ProductManagementController : ControllerBase
+public class ProductManagementController(IMediator mediator) : ControllerBase
 {
     [HttpGet("products")]
-    public Task<IActionResult> GetProducts(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProducts(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await mediator.Send(new GetProductsQuery(), cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost("product")]
-    public Task<IActionResult> InsertProduct(string name, CancellationToken cancellationToken)
+    public async Task<IActionResult> InsertProduct(string name, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await mediator.Send(new InsertProductCommand(name), cancellationToken);
+        return Ok(result);
     }
 
     [HttpDelete("product")]
-    public Task<IActionResult> DeleteProduct(Guid guid, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteProduct(Guid guid, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await mediator.Send(new DeleteProductByGuidCommand(guid), cancellationToken);
+        return Ok();
     }
 
     [HttpPut("product")]
-    public Task<IActionResult> UpdateProduct(Guid guid, string name, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProduct(Guid guid, string name, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await mediator.Send(new UpdateProductCommand(guid, name), cancellationToken);
+        return Ok();
     }
 }

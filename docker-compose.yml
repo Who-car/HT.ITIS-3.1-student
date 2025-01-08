@@ -1,25 +1,80 @@
-version: '3.8'
 services:
+    
   dotnet_postgres:
     image: postgres:alpine
-    
-  dotnet_rabbitmq:
-    image: rabbitmq:3-alpine
-    
-  dotnet_minio:
-    image: minio/minio:latest
-    
-  dotnet_mongodb:
-    image: mongo:latest
-    
-  dotnet_jaeger:
-    image: jaegertracing/all-in-one:latest
+    environment:
+      POSTGRES_DB: dotnet
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5433:5432"
+    networks:
+      - dotnet
     
   dotnet_main:
     image: dotnet-web
-    
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMqConfig__Username: admin
+      RabbitMqConfig__Password: admin
+      RabbitMqConfig__Hostname: dotnet_rabbitmq
+      ConnectionStrings__Default: Host=dotnet_postgres;Port=5432;Database=dotnet;Username=admin;Password=admin
+    build:
+      dockerfile: Dotnet.Homeworks.MainProject/Dockerfile
+    depends_on:
+      - dotnet_postgres
+      - dotnet_rabbitmq
+    ports:
+      - "8081:8080"
+    networks:
+      - dotnet
+        
+  dotnet_rabbitmq:
+    image: rabbitmq:3-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - dotnet
+#    
+#  dotnet_minio:
+#    image: minio/minio:latest
+#    
+#  dotnet_mongodb:
+#    image: mongo:latest
+#    
+#  dotnet_jaeger:
+#    image: jaegertracing/all-in-one:latest
+#    
   dotnet_mailing:
     image: dotnet-web
-    
-  dotnet_storage:
-    image: dotnet-web
+    build:
+      dockerfile: Dotnet.Homeworks.Mailing.API/Dockerfile
+    depends_on:
+      - dotnet_rabbitmq
+    environment:
+      RabbitMqConfig__Hostname: dotnet_rabbitmq
+      RabbitMQConfig__Username: admin
+      RabbitMQConfig__Password: admin
+      EmailConfig__Email: blablabla@dotnet.com
+      EmailConfig__Port: 6666
+      EmailConfig__Host: dotnet.com
+      EmailConfig__Password: password
+    ports:
+      - "6666:6666"
+    networks:
+      - dotnet
+#    
+#  dotnet_storage:
+#    image: dotnet-web
+
+volumes:
+  rabbitmq_data:    
+
+networks:
+  dotnet:

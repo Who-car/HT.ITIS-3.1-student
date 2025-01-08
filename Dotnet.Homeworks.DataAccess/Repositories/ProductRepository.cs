@@ -1,27 +1,36 @@
+using Dotnet.Homeworks.Data.DatabaseContext;
 using Dotnet.Homeworks.Domain.Abstractions.Repositories;
 using Dotnet.Homeworks.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dotnet.Homeworks.DataAccess.Repositories;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository(AppDbContext appDbContext) : IProductRepository
 {
     public Task<IEnumerable<Product>> GetAllProductsAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(appDbContext.Products.AsEnumerable());
     }
 
-    public Task DeleteProductByGuidAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteProductByGuidAsync(Guid id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var product = await appDbContext.Products
+            .Where(x => x.Id.Equals(id))
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (product is not null)
+        {
+            appDbContext.Products.Remove(product);
+        }
     }
 
     public Task UpdateProductAsync(Product product, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(appDbContext.Products.Update(product));
     }
 
     public Task<Guid> InsertProductAsync(Product product, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(appDbContext.Products.Add(product).Entity.Id);
     }
 }

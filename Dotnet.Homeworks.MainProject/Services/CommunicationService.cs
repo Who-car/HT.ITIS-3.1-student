@@ -1,12 +1,13 @@
 ﻿using Dotnet.Homeworks.Shared.MessagingContracts.Email;
+using MassTransit;
 
 namespace Dotnet.Homeworks.MainProject.Services;
 
-public class CommunicationService : ICommunicationService
+public class CommunicationService(IBus bus, ILogger<CommunicationService> logger) : ICommunicationService
 {
-    public Task SendEmailAsync(SendEmail sendEmailDto)
+    public async Task SendEmailAsync(SendEmail sendEmailDto)
     {
-        // TODO: implement RabbitMq messaging
-        throw new NotImplementedException();
+        logger.LogInformation("Sending message to {recipient}", sendEmailDto.ReceiverEmail);
+        await bus.Publish(sendEmailDto);
     }
 }
