@@ -2,6 +2,7 @@ using Dotnet.Homeworks.Data.DatabaseContext;
 using Dotnet.Homeworks.MainProject.Configuration;
 using Dotnet.Homeworks.MainProject.Services;
 using Dotnet.Homeworks.MainProject.ServicesExtensions.Masstransit;
+using Dotnet.Homeworks.MainProject.ServicesExtensions.MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddAppServices();
 builder.Services.AddMasstransitRabbitMq(
     builder.Configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>()!);
 
